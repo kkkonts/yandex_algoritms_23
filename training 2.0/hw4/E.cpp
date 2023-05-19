@@ -2,78 +2,54 @@
 #include <sstream>
 using namespace std;
 
-/* Неизвестный водитель совершил ДТП и скрылся с места происшествия. Полиция опрашивает свидетелей.
- * Каждый из них говорит, что запомнил какие-то буквы и цифры номера.
- * Но при этом свидетели не помнят порядок этих цифр и букв. Полиция хочет
- * проверить несколько подозреваемых автомобилей. Будем говорить, что номер
- * согласуется с показанием свидетеля, если все символы, которые назвал свидетель,
- * присутствуют в этом номере (не важно, сколько раз).*/
+/* Клуб Юных Хакеров организовал на своем сайте форум. Форум имеет следующую структуру: каждое сообщение либо начинает новую тему, либо является ответом на какое-либо предыдущее сообщение и принадлежит той же теме.
+После нескольких месяцев использования своего форума юных хакеров заинтересовал вопрос - какая тема на их форуме наиболее популярна. Помогите им выяснить это..*/
 
-bool in(const set<char> &witness, const string &number) {
-    //every char should be in set
-    set<char> num;
-
-    for (auto elem : number) {
-        num.insert(elem);
-    }
-
-    for (auto elem : witness) {
-        if (num.find(elem) == num.end())
-            return false;
-    }
-
-    return true;
-}
-
-int count(const vector<set<char>> &witnesses, string number) {
-    int cnt = 0;
-
-    for (auto witness : witnesses)
-        if (in(witness, number))
-            ++cnt;
-    return cnt;
-}
-
+struct Topic {
+    int count;
+    string name;
+};
 
 int main() {
-    set<char> tmp;
-    vector<set<char>> witnesses;
-    int m, n, max = 0;
-    char ch;
-    string number, line, res;
-    vector<string> ans;
+    string line, topic, f;
+    int n, parent, i = 1, k = 0;
+    map<int, int> mes; // mes_num : topic_num
+    map<int, Topic> topics; //index
 
-    cin >> m;
-    for(int i = 0; i < m + 1; ++i) {
-        getline(std::cin, line);
+    std::getline(std::cin, line);
+    std::istringstream iss(line);
+    iss >> n;
+
+    for(int i = 1; i <= n; ++i){
+        std::getline(std::cin, line);
         std::istringstream iss(line);
-
-        while (iss >> ch)
-            tmp.insert(ch);
-
-        witnesses.push_back(tmp);
-        tmp.clear();
+        iss >> parent;
+        if(parent == 0){
+            getline(cin, topic);
+            topics[i].name = topic;
+            getline(cin, line);
+            mes[i]= i;
+        } else {
+            getline(cin, line);
+            mes[i] = mes[parent];
+            topics[mes[parent]].count++;
+        }
     }
 
+    int max = -1;
+    string ans;
 
-    cin >> n;
-
-    for(int i = 0; i < n + 1; ++i) {
-        getline(std::cin, number);
-
-        if (count(witnesses, number) > max) {
-            ans.clear();
-            ans.push_back(number);
-            max = count(witnesses, number);
-        } else if (count(witnesses, number) == max) {
-            ans.push_back(number);
+    for(auto elem : topics) {
+        if (elem.second.count > max) {
+            ans = elem.second.name;
+            max = elem.second.count;
         }
 
+//        std::cout << elem.second.name << " " <<
+//                  elem.second.count << "\n";
     }
 
-    for (auto elem : ans)
-        cout << elem << "\n";
+    cout << ans;
 
     return 0;
 }
-
